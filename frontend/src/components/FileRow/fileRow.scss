@@ -1,0 +1,30 @@
+@import "../../variables";
+
+.file-row-container {
+  .prev-btn {
+    font-size: 20px;
+    padding-left: 10px;
+    letter-spacing: 2px;
+  }
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: $button-hover-bg-color;
+  }
+
+
+  td {
+    padding-left: 5px;
+  }
+
+
+  .file-name-td {
+    display: flex;
+    align-items: center;
+    .file-icon {
+      width: 15px;
+      margin-right: 5px;
+    }
+  }
+}
