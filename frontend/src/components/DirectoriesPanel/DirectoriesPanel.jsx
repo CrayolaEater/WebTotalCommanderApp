@@ -2,30 +2,34 @@ import "./directoriesPanel.scss";
 import FileRow from "../FileRow/FileRow";
 import {useEffect, useState} from "react";
 import Loader from "../Loader/Loader";
+import removeLastFromUrl from "../../helpers/urlManipulator";
 
-function DirectoriesPanel({cd}) {
+function DirectoriesPanel({cd, setCd}) {
 
     const [files, setFiles] = useState([]);
     const [isLoading, toggleLoading] = useState(false);
-
-    useEffect(()=>{
+    useEffect(() => {
+        toggleLoading(true);
         fetch(process.env.REACT_APP_SERVER_ADRESS + "/bbbn/getFiles/", {
             method: "post",
-            headers : {
-                "Content-type" : "application/json",
+            headers: {
+                "Content-type": "application/json",
             },
             body: JSON.stringify({path: cd})
         })
             .then(result => result.json())
-            .then(data => setFiles(data))
+            .then(data => {
+                setFiles(data);
+                toggleLoading(false);
+            })
     }, [cd]);
 
     return (
         <div className="dir-panel-container">
-            {isLoading && <Loader />}
+            {isLoading && <Loader/>}
             {!isLoading && <table className="filesTable">
                 <thead>
-                    <tr className="head-row">
+                <tr className="head-row">
                     <th className="name-head">
                         Name
                     </th>
@@ -45,12 +49,19 @@ function DirectoriesPanel({cd}) {
                 </thead>
 
                 <tbody>
-                    <FileRow isPrevBtn/>
-                    {
-                        files && files.map((e, i)=> (
-                            <FileRow key={`#fileRow-${i}`} fileInfo={e} />
-                        ))
-                    }
+                <FileRow onClick={() => {
+                    setCd(removeLastFromUrl(cd));
+                }
+                } isPrevBtn/>
+                {
+                    files && files.map((e, i) => (
+                        <FileRow onClick={() => {
+                            if (e.isDir) {
+                                setCd(e.path);
+                            }
+                        }} key={`#fileRow-${i}`} fileInfo={e}/>
+                    ))
+                }
                 </tbody>
 
             </table>}

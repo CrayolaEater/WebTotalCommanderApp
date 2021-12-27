@@ -12,8 +12,8 @@ function App() {
         <div className="App">
             <Toolbar/>
             <div className="panels-container">
-                <DirectoriesPanel cd={leftPanelCd}/>
-                <DirectoriesPanel cd={rightPanelCd}/>
+                <DirectoriesPanel setCd={setLeftPanelCd} cd={leftPanelCd}/>
+                <DirectoriesPanel setCd={setrightPanelCd} cd={rightPanelCd}/>
             </div>
         </div>
     );

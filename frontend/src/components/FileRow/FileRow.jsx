@@ -1,12 +1,11 @@
 import './fileRow.scss';
 import getIcon from "../../helpers/fileIcon";
 import backIcon from "../../assets/back icon-min.png";
-import Loader from "../Loader/Loader";
 
-function FileRow({isPrevBtn = false, fileInfo}) {
+function FileRow({isPrevBtn = false, fileInfo, onClick}) {
 
     return (
-        <tr className="file-row-container">
+        <tr className="file-row-container" onClick={onClick}>
             {
                 isPrevBtn ?
                     (
@@ -33,7 +32,7 @@ function FileRow({isPrevBtn = false, fileInfo}) {
                                 {fileInfo.ext}
                             </td>
                             <td>
-                                {fileInfo.size}
+                                {fileInfo.isDir ? "" : fileInfo.size}
                             </td>
                             <td>
                                 {fileInfo.date}
