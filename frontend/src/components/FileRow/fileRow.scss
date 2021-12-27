@@ -1,10 +1,18 @@
 @import "../../variables";
 
 .file-row-container {
+
+
   .prev-btn {
     font-size: 20px;
     padding-left: 10px;
     letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+
+    .back-icon {
+      width: 20px;
+    }
   }
 
   cursor: pointer;
@@ -22,6 +30,7 @@
   .file-name-td {
     display: flex;
     align-items: center;
+
     .file-icon {
       width: 15px;
       margin-right: 5px;

@@ -1,10 +1,12 @@
 import "./directoriesPanel.scss";
 import FileRow from "../FileRow/FileRow";
 import {useEffect, useState} from "react";
+import Loader from "../Loader/Loader";
 
 function DirectoriesPanel({cd}) {
 
     const [files, setFiles] = useState([]);
+    const [isLoading, toggleLoading] = useState(false);
 
     useEffect(()=>{
         fetch(process.env.REACT_APP_SERVER_ADRESS + "/bbbn/getFiles/", {
@@ -20,7 +22,8 @@ function DirectoriesPanel({cd}) {
 
     return (
         <div className="dir-panel-container">
-            <table className="filesTable">
+            {isLoading && <Loader />}
+            {!isLoading && <table className="filesTable">
                 <thead>
                     <tr className="head-row">
                     <th className="name-head">
@@ -50,7 +53,7 @@ function DirectoriesPanel({cd}) {
                     }
                 </tbody>
 
-            </table>
+            </table>}
         </div>
     );
 }
