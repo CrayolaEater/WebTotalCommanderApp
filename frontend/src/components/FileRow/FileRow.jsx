@@ -35,7 +35,7 @@ function FileRow({isPrevBtn = false, fileInfo, onClick}) {
                                 {fileInfo.isDir ? "" : fileInfo.size}
                             </td>
                             <td>
-                                {fileInfo.date}
+                                {new Date(fileInfo.date).toLocaleDateString()}
                             </td>
                             <td>
                                 {fileInfo.attr}

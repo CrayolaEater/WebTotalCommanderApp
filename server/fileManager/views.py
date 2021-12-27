@@ -7,6 +7,11 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.csrf import csrf_exempt
 import os, stat
 import json
+import datetime
+
+BLACKLIST =[
+    "Documents and Settings"
+]
 
 
 def has_hidden_attribute(filepath):
@@ -42,14 +47,14 @@ def getFiles(request):
 
     for f in listFiles:
         fpath = os.path.join(path, f)
-        if not has_hidden_attribute(fpath):
+        if not has_hidden_attribute(fpath) and not f in BLACKLIST:
             stats = os.stat(fpath)
             file_name, file_extension = os.path.splitext(fpath)
             obj = {
                 "name" : f,
                 "size" : stats.st_size,
                 "ext" : "" if os.path.isdir(fpath) else file_extension,
-                "date" : stats.st_mtime,
+                "date" : datetime.datetime.fromtimestamp(stats.st_mtime).isoformat(),
                 "attr" : octal_to_string(oct(stats.st_mode)[-3:]),
                 "isDir" : os.path.isdir(fpath),
                 "path" : fpath
