@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 import os, stat
 import json
 import datetime
+import platform
 
 BLACKLIST =[
     "Documents and Settings"
@@ -30,9 +31,21 @@ def octal_to_string(octal):
                 result += '-'
     return result
 
-@csrf_exempt
-def post(request):
-    return HttpResponse(request.body)
+
+def getDefaultPaths(request):
+    desktopPath = ""
+    downloadsPath = ""
+    if platform.system() == "Windows":
+        desktopPath = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+        downloadsPath = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Downloads')
+    else:
+        desktopPath = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop')
+        downloadsPath = os.path.join(os.path.join(os.path.expanduser('~')), 'Downloads')
+    return HttpResponse(json.dumps([
+        {"key": "home" , "value": os.path.expanduser('~'), },
+         {"key" : "desktop", "value": desktopPath},
+        {"key" : "downloads", "value" : downloadsPath }
+    ]))
 
 
 @csrf_exempt

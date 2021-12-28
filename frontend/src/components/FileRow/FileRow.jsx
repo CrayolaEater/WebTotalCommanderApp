@@ -2,10 +2,10 @@ import './fileRow.scss';
 import getIcon from "../../helpers/fileIcon";
 import backIcon from "../../assets/back icon-min.png";
 
-function FileRow({isPrevBtn = false, fileInfo, onClick}) {
+function FileRow({isPrevBtn = false, fileInfo, onClick, selected = false}) {
 
     return (
-        <tr className="file-row-container" onClick={onClick}>
+        <tr className={`file-row-container ${selected && !isPrevBtn ? "selected" : ""}`} onClick={onClick}>
             {
                 isPrevBtn ?
                     (
@@ -32,7 +32,7 @@ function FileRow({isPrevBtn = false, fileInfo, onClick}) {
                                 {fileInfo.ext}
                             </td>
                             <td>
-                                {fileInfo.isDir ? "" : fileInfo.size}
+                                {fileInfo.size === 0 ? "" : fileInfo.size}
                             </td>
                             <td>
                                 {new Date(fileInfo.date).toLocaleDateString()}

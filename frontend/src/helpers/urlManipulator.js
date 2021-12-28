@@ -1,8 +1,9 @@
-export default function removeLastFromUrl(url) {
-    let the_arr = url.split('/');
-    the_arr.pop();
-    if (the_arr.join('/') === "") {
-        return "/";
+export default function removeLastFromUrl(url, startPos) {
+    if (url === startPos) {
+        return startPos;
     }
-    return (the_arr.join('/'));
+    const separator = url.indexOf("/") === -1 ? "\\" : "/";
+    let the_arr = url.split(separator);
+    the_arr.pop();
+    return (the_arr.join(separator));
 }

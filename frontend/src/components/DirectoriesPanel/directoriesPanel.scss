@@ -1,6 +1,16 @@
 @import "../../variables";
 
 .dir-panel-container {
+  overflow-x: hidden;
+  .cd-input {
+    background-color: $input-bg-color2;
+    padding: 5px;
+    display: block;
+    width: 100%;
+    color: $text-color2;
+    border: none;
+  }
+
   overflow-y: auto;
   position: relative;
   background-color: $background-panel-color;
