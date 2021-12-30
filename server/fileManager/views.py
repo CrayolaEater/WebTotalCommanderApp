@@ -5,13 +5,15 @@ from django.http import HttpResponse
 
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.csrf import csrf_exempt
-import os, stat
+import os
+import stat
 import json
 import datetime
 import platform
+import errno
 
-BLACKLIST =[
-    "Documents and Settings"
+BLACKLIST = [
+    "Documents and Settings",
 ]
 
 
@@ -21,7 +23,7 @@ def has_hidden_attribute(filepath):
 
 def octal_to_string(octal):
     result = ""
-    value_letters = [(4,"r"),(2,"w"),(1,"x")]
+    value_letters = [(4, "r"), (2, "w"), (1, "x")]
     for digit in [int(n) for n in str(octal)]:
         for value, letter in value_letters:
             if digit >= value:
@@ -36,49 +38,88 @@ def getDefaultPaths(request):
     desktopPath = ""
     downloadsPath = ""
     if platform.system() == "Windows":
-        desktopPath = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-        downloadsPath = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Downloads')
+        desktopPath = os.path.join(os.path.join(
+            os.environ['USERPROFILE']), 'Desktop')
+        downloadsPath = os.path.join(os.path.join(
+            os.environ['USERPROFILE']), 'Downloads')
     else:
-        desktopPath = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop')
-        downloadsPath = os.path.join(os.path.join(os.path.expanduser('~')), 'Downloads')
+        desktopPath = os.path.join(os.path.join(
+            os.path.expanduser('~')), 'Desktop')
+        downloadsPath = os.path.join(os.path.join(
+            os.path.expanduser('~')), 'Downloads')
     return HttpResponse(json.dumps([
-        {"key": "home" , "value": os.path.expanduser('~'), },
-         {"key" : "desktop", "value": desktopPath},
-        {"key" : "downloads", "value" : downloadsPath }
+        {"key": "home", "value": os.path.expanduser('~'), },
+        {"key": "desktop", "value": desktopPath},
+        {"key": "downloads", "value": downloadsPath}
     ]))
 
 
 @csrf_exempt
 def getFiles(request):
-
     reqBody = json.loads(request.body)
     path = reqBody["path"]
 
     files = []
 
-    listFiles = os.listdir(path)
+    try:
 
-    for f in listFiles:
-        fpath = os.path.join(path, f)
-        if not has_hidden_attribute(fpath) and not f in BLACKLIST:
-            stats = os.stat(fpath)
-            file_name, file_extension = os.path.splitext(fpath)
-            obj = {
-                "name" : f,
-                "size" : stats.st_size,
-                "ext" : "" if os.path.isdir(fpath) else file_extension,
-                "date" : datetime.datetime.fromtimestamp(stats.st_mtime).isoformat(),
-                "attr" : octal_to_string(oct(stats.st_mode)[-3:]),
-                "isDir" : os.path.isdir(fpath),
-                "path" : fpath
-            }
-            files.append(obj)
+        listFiles = os.listdir(path)
+
+        for f in listFiles:
+            fpath = os.path.join(path, f)
+            if not has_hidden_attribute(fpath) and os.access(fpath, os.R_OK):
+                stats = os.stat(fpath)
+                file_name, file_extension = os.path.splitext(fpath)
+                obj = {
+                    "name": f,
+                    "size": stats.st_size,
+                    "ext": "" if os.path.isdir(fpath) else file_extension,
+                    "date": datetime.datetime.fromtimestamp(stats.st_mtime).isoformat(),
+                    "attr": octal_to_string(oct(stats.st_mode)[-3:]),
+                    "isDir": os.path.isdir(fpath),
+                    "path": fpath
+                }
+                files.append(obj)
+
+        return HttpResponse(json.dumps({"code": "OK", "files": files}))
+    except:
+        return HttpResponse(json.dumps({"code": "NOACCESS"}))
 
 
-    return HttpResponse(json.dumps(files))
+@csrf_exempt
+def mkdir(request):
+    try:
+        reqBody = json.loads(request.body)
+        parent = reqBody["parent"]
+        name = reqBody["name"]
+        path = os.path.join(parent, name)
+        os.mkdir(path)
+
+        return HttpResponse(json.dumps({"code": "OK"}))
+    except:
+        if os.path.exists(path):
+            return HttpResponse(json.dumps({"code": "DAEXISTS"}))
+        return HttpResponse(json.dumps({"code": "ERROR"}))
+
+
+@csrf_exempt
+def mkfile(request):
+    try:
+        reqBody = json.loads(request.body)
+        parent = reqBody["parent"]
+        name = reqBody["name"]
+        path = os.path.join(parent, name)
+        open(path, "x")
+
+        return HttpResponse(json.dumps({"code": "OK"}))
+    except:
+        if os.path.exists(path):
+            return HttpResponse(json.dumps({"code": "FAEXISTS"}))
+        return HttpResponse(json.dumps({"code": "ERROR"}))
+
 
 @ensure_csrf_cookie
 def getToken(request):
     return JsonResponse({
-        "token" : get_token(request)
+        "token": get_token(request)
     })

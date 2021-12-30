@@ -5,45 +5,41 @@ import backIcon from "../../assets/back icon-min.png";
 function FileRow({isPrevBtn = false, fileInfo, onClick, selected = false}) {
 
     return (
-        <tr className={`file-row-container ${selected && !isPrevBtn ? "selected" : ""}`} onClick={onClick}>
+        <div className={`tr file-row-container ${selected && !isPrevBtn ? "selected" : ""}`} onClick={onClick}>
             {
                 isPrevBtn ?
                     (
                         <>
-                            <td className="prev-btn" colSpan={"100%"}>
+                            <div className="td prev-btn">
                                 <img src={backIcon} alt="back" className="back-icon"/>
                                 ...
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            </div>
                         </>
 
                     )
                     :
                     (
                         <>
-                            <td className={"file-name-td"}>
+                            <div className={"td file-name-td name-head"}>
                                 <img className={"file-icon"} src={getIcon(fileInfo, fileInfo.ext)} alt="icon"/>
                                 {fileInfo.name}
-                            </td>
-                            <td>
+                            </div>
+                            <div className={"td ext-head"}>
                                 {fileInfo.ext}
-                            </td>
-                            <td>
+                            </div>
+                            <div className={"td size-head"}>
                                 {fileInfo.size === 0 ? "" : fileInfo.size}
-                            </td>
-                            <td>
+                            </div>
+                            <div className={"td date-head"}>
                                 {new Date(fileInfo.date).toLocaleDateString()}
-                            </td>
-                            <td>
+                            </div>
+                            <div className={"td attr-head"}>
                                 {fileInfo.attr}
-                            </td>
+                            </div>
                         </>
                     )
             }
-        </tr>
+        </div>
     );
 }
 

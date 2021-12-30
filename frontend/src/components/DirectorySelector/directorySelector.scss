@@ -1,8 +1,9 @@
 @import "../../variables";
-.dir-selector
-{
+
+.dir-selector {
   width: 100%;
   padding: 2px;
   background-color: $input-bg-color;
   color: $text-color;
+  outline: none;
 }
