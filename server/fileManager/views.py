@@ -117,6 +117,20 @@ def mkfile(request):
             return HttpResponse(json.dumps({"code": "FAEXISTS"}))
         return HttpResponse(json.dumps({"code": "ERROR"}))
 
+@csrf_exempt
+def rmFiles(request):
+    reqBody = json.loads(request.body)
+    paths = reqBody["paths"]
+    for path in paths:
+        try:
+            if os.path.isdir(path["path"]):
+                os.rmdir(path["path"])
+            else:
+                os.remove(path["path"])
+        except:
+            pass
+    return HttpResponse(json.dumps({"code": "OK"}))
+
 
 @ensure_csrf_cookie
 def getToken(request):

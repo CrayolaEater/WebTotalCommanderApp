@@ -1,6 +1,7 @@
 @import "../../variables";
 
 .overlay {
+  z-index: 10;
   position: absolute;
   background-color: $overlay-bg-color;
   width: 100%;

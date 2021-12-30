@@ -1,5 +1,9 @@
 @import "../../variables";
 
+.message-container {
+  margin: 5px 0;
+}
+
 .text-input {
   background-color: $input-bg-color;
   padding: 5px;
@@ -15,6 +19,13 @@
   padding: 10px;
   border-radius: 12px;
   cursor: pointer;
+  min-width: 65px;
+}
+
+.close-btn {
+  background-color: $text-color;
+  color: black;
+  margin-left: 10px;
 }
 
 
@@ -23,6 +34,7 @@
   .tr {
     display: flex;
     align-items: center;
+
     .td {
       padding-left: 5px;
     }

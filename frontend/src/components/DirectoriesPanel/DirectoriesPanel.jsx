@@ -20,6 +20,7 @@ function DirectoriesPanel({
                               panelIndex,
                               newFile,
                               toggleCreateNewFile,
+                              selectedFilesAndPanel
                           }) {
 
     const [files, setFiles] = useState([]);
@@ -71,7 +72,13 @@ function DirectoriesPanel({
 
 
     useEffect(() => {
-        getFiles();
+        let isMounted = true;
+        if (isMounted) {
+            getFiles();
+        }
+        return () => {
+            isMounted = false;
+        }
     }, [cd]);
 
     return (
@@ -126,22 +133,27 @@ function DirectoriesPanel({
                                 <FileRow selected={!!selectedFiles.find(f => f.path === e.path)} onClick={() => {
                                     setFocusedPanel(panelIndex);
                                     if (!!!selectedFiles.find(f => f.path === e.path) || selectedFiles.length === 0) {
-                                        console.log("aici1")
                                         if (ctrPressed) {
                                             setSelectedFiles([...selectedFiles, e]);
+                                            selectedFilesAndPanel.current = {
+                                                panel: panelIndex,
+                                                files: [...selectedFiles, e]
+                                            };
                                         } else {
                                             setSelectedFiles([e]);
+                                            selectedFilesAndPanel.current = {panel: panelIndex, files: [e]};
                                         }
                                     } else if (!!selectedFiles.find(f => f.path === e.path) && selectedFiles.length > 1) {
                                         if (ctrPressed) {
                                             let copy = [...selectedFiles];
                                             copy = copy.filter(ef => ef.path !== e.path);
                                             setSelectedFiles(copy);
+                                            selectedFilesAndPanel.current = {panel: panelIndex, files: copy};
                                         }
                                     } else if (selectedFiles.length === 1 && selectedFiles[0].path === e.path) {
-                                        console.log("aici3")
                                         if (e.isDir) {
                                             setSelectedFiles([]);
+                                            selectedFilesAndPanel.current = null;
                                             setCd(e.path);
                                         }
                                     }

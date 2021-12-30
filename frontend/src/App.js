@@ -1,9 +1,11 @@
 import './App.css';
 import Toolbar from "./components/Toolbar/Toolbar";
 import DirectoriesPanel from "./components/DirectoriesPanel/DirectoriesPanel";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import newFolderIcon from "./assets/new-folder-icon.png";
 import newFileIcon from "./assets/new-file-icon.png";
+import deleteIcon from "./assets/delete-icon.png";
+import VerificationModal from "./components/VerificationModal/VerificationModal";
 
 function App() {
 
@@ -16,6 +18,30 @@ function App() {
     const [focusedPanel, setFocusedPanel] = useState(1);
     const [createNewFolder, toggleCreateNewFolder] = useState(false);
     const [createNewFile, toggleCreateNewFile] = useState(false);
+    const selectedFilesAndPanel = useRef(null);
+    const [infoModal, setInfoModal] = useState(null);
+
+
+    function deleteFiles() {
+        toggleLoading(true);
+        fetch(process.env.REACT_APP_SERVER_ADRESS + "/bbbn/rmFiles/", {
+            method: "post",
+            headers: {
+                "Content-type": "application/json",
+            },
+            body: JSON.stringify({paths: selectedFilesAndPanel.current.files})
+        })
+            .then(result => result.json())
+            .then(data => {
+                if (data.code === "OK") {
+                    selectedFilesAndPanel.current = null;
+                }
+            })
+            .finally(() => {
+                setInfoModal(null);
+                toggleLoading(false);
+            });
+    }
 
     useEffect(() => {
         fetch(process.env.REACT_APP_SERVER_ADRESS + "/bbbn/getDefaultPaths/")
@@ -25,7 +51,13 @@ function App() {
                 setLeftDefaultPath(data[0]);
                 setRightDefaultPath(data[0]);
                 toggleLoading(false);
-            })
+            });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Delete" && selectedFilesAndPanel.current && selectedFilesAndPanel.current.files.length > 0) {
+                setInfoModal(() => (<div>Are you sure you want to
+                    delete <strong>{selectedFilesAndPanel.current.files.length} items?</strong></div>));
+            }
+        })
     }, []);
 
     useEffect(() => {
@@ -44,20 +76,32 @@ function App() {
     return (
         <div className="App">
             <Toolbar>
-                <button onClick={() => {
+                <button title={"New Directory"} onClick={() => {
                     toggleCreateNewFolder(true);
                 }} className="button new-folder-btn">
                     <img src={newFolderIcon} alt="new folder"/>
                 </button>
 
-                <button onClick={() => {
+                <button title={"New File"} onClick={() => {
                     toggleCreateNewFile(true);
                 }} className="button new-file-btn">
-                    <img src={newFileIcon} alt="new folder"/>
+                    <img src={newFileIcon} alt="new file"/>
+                </button>
+
+
+                <button title={"Delete"} onClick={() => {
+                    if (selectedFilesAndPanel.current && selectedFilesAndPanel.current.files.length > 0) {
+                        setInfoModal(() => (<div>Are you sure you want to
+                            delete <strong>{selectedFilesAndPanel.current.files.length} items?</strong></div>));
+                    }
+                }} className="button delete-btn">
+                    <img src={deleteIcon} alt="delete"/>
                 </button>
 
 
             </Toolbar>
+            {infoModal &&
+            <VerificationModal onAccept={deleteFiles} message={infoModal} onCancel={() => setInfoModal(null)}/>}
             <div className="panels-container">
 
                 {
@@ -72,6 +116,7 @@ function App() {
                                           panelIndex={1}
                                           newFile={createNewFile && focusedPanel === 1}
                                           toggleCreateNewFile={toggleCreateNewFile}
+                                          selectedFilesAndPanel={selectedFilesAndPanel}
                         />
                         <DirectoriesPanel allDefaultPaths={defaultPaths} defaultPaths={rightDefaultPath}
                                           setDefaultPath={setRightDefaultPath}
@@ -82,8 +127,7 @@ function App() {
                                           panelIndex={2}
                                           newFile={createNewFile && focusedPanel === 2}
                                           toggleCreateNewFile={toggleCreateNewFile}
-
-
+                                          selectedFilesAndPanel={selectedFilesAndPanel}
                         />
 
                     </>

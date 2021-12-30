@@ -6,5 +6,6 @@ urlpatterns = [
     path("getFiles/", views.getFiles),
     path("getDefaultPaths/", views.getDefaultPaths),
     path("mkdir/", views.mkdir),
-    path("mkfile/", views.mkfile)
+    path("mkfile/", views.mkfile),
+    path("rmFiles/", views.rmFiles)
 ]
