@@ -162,6 +162,34 @@ def copyFiles(request):
         return HttpResponse(json.dumps({"code" : "ERROR"}))
 
 
+@csrf_exempt
+def cutFiles(request): 
+    reqBody = json.loads(request.body)
+    source = reqBody["source"]
+    overwrite = reqBody["overwrite"]
+    files = reqBody["files"]
+    overwritten = []
+    toOverwrite = []
+    try:
+        for f in files:
+            name = f["name"]
+            fpath = os.path.join(source, name)
+            if os.path.exists(fpath):
+                if not overwrite:
+                    toOverwrite.append(f["path"])
+                    overwritten.append(fpath)
+                else:
+                    if os.path.isdir(fpath):
+                        os.rmdir(fpath)
+                    else:
+                        os.remove(fpath)
+                    shutil.move(f["path"], source)
+            else:
+                shutil.move(f["path"], source)
+        return HttpResponse(json.dumps({"code" : "OK", "source" : source, "overwritten" : overwritten}))
+    except:
+        return HttpResponse(json.dumps({"code" : "ERROR"}))
+
 
 
 @ensure_csrf_cookie

@@ -8,5 +8,6 @@ urlpatterns = [
     path("mkdir/", views.mkdir),
     path("mkfile/", views.mkfile),
     path("rmFiles/", views.rmFiles),
-    path("copyFiles/", views.copyFiles)
+    path("copyFiles/", views.copyFiles),
+    path("cutFiles/", views.cutFiles)
 ]

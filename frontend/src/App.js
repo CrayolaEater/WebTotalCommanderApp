@@ -6,6 +6,7 @@ import newFolderIcon from "./assets/new-folder-icon.png";
 import newFileIcon from "./assets/new-file-icon.png";
 import deleteIcon from "./assets/delete-icon.png";
 import copyIcon from "./assets/copy-icon.png";
+import cutIcon from "./assets/cut-file-icon.png";
 import VerificationModal from "./components/VerificationModal/VerificationModal";
 import ActionElement from "./components/ActionElement/ActionElement";
 
@@ -73,6 +74,44 @@ function App() {
                         );
                         action.current = () => {
                             copyFiles(true);
+                        };
+                    } else {
+                        setInfoModal(null);
+                        action.current = null;
+                    }
+                }
+            })
+            .finally(() => {
+                toggleLoading(false);
+            })
+    }
+
+    function moveFiles(overwrite = false) {
+        toggleLoading(true);
+        const source = selectedFilesAndPanel.current.panel === 1 ? rightPanelCd : leftPanelCd;
+        fetch(process.env.REACT_APP_SERVER_ADRESS + "/bbbn/cutFiles/", {
+            method: "post",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({source: source, files: selectedFilesAndPanel.current.files, overwrite: overwrite})
+        })
+            .then(restult => restult.json())
+            .then(data => {
+                if (data.code === "OK") {
+                    if (data.overwritten.length > 0) {
+                        setInfoModal(
+                            <div>
+                                The following files will be overwritten:
+                                <ul>
+                                    {data.overwritten.map((e, i) => (
+                                        <li key={`#list-${i}`}>{e}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        );
+                        action.current = () => {
+                            moveFiles(true);
                         };
                     } else {
                         setInfoModal(null);
@@ -153,6 +192,19 @@ function App() {
                     }
                 }} className="button delete-btn">
                     <img src={copyIcon} alt="delete"/>
+                </button>
+
+                <button title={"Cut"} onClick={() => {
+                    if (selectedFilesAndPanel.current && selectedFilesAndPanel.current.files.length > 0) {
+                        setInfoModal(() => <ActionElement left={leftPanelCd} right={rightPanelCd}
+                                                          fromPanel={selectedFilesAndPanel.current.panel}
+                                                          message={<div>Are you sure you want
+                                                              to <strong>move {selectedFilesAndPanel.current.files.length} items
+                                                                  ?</strong></div>}/>);
+                        action.current = moveFiles;
+                    }
+                }} className="button delete-btn">
+                    <img src={cutIcon} alt="delete"/>
                 </button>
 
 
