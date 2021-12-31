@@ -1,0 +1,30 @@
+@import "../../variables";
+
+.action-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .confirm-msj {
+
+  }
+
+  .action-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    .from-path {
+
+    }
+
+    .arrow-icon {
+      width: 50px;
+      &.reversed {
+        transform: rotate(180deg);
+      }
+    }
+
+    .to-path {
+
+    }
+  }
+}

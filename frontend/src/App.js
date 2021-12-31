@@ -5,7 +5,9 @@ import React, {useEffect, useRef, useState} from "react";
 import newFolderIcon from "./assets/new-folder-icon.png";
 import newFileIcon from "./assets/new-file-icon.png";
 import deleteIcon from "./assets/delete-icon.png";
+import copyIcon from "./assets/copy-icon.png";
 import VerificationModal from "./components/VerificationModal/VerificationModal";
+import ActionElement from "./components/ActionElement/ActionElement";
 
 function App() {
 
@@ -20,6 +22,7 @@ function App() {
     const [createNewFile, toggleCreateNewFile] = useState(false);
     const selectedFilesAndPanel = useRef(null);
     const [infoModal, setInfoModal] = useState(null);
+    const action = useRef(null);
 
 
     function deleteFiles() {
@@ -40,7 +43,46 @@ function App() {
             .finally(() => {
                 setInfoModal(null);
                 toggleLoading(false);
+                action.current = null;
             });
+    }
+
+    function copyFiles(overwrite = false) {
+        toggleLoading(true);
+        const source = selectedFilesAndPanel.current.panel === 1 ? rightPanelCd : leftPanelCd;
+        fetch(process.env.REACT_APP_SERVER_ADRESS + "/bbbn/copyFiles/", {
+            method: "post",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({source: source, files: selectedFilesAndPanel.current.files, overwrite: overwrite})
+        })
+            .then(restult => restult.json())
+            .then(data => {
+                if (data.code === "OK") {
+                    if (data.overwritten.length > 0) {
+                        setInfoModal(
+                            <div>
+                                The following files will be overwritten:
+                                <ul>
+                                    {data.overwritten.map((e, i) => (
+                                        <li key={`#list-${i}`}>{e}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        );
+                        action.current = () => {
+                            copyFiles(true);
+                        };
+                    } else {
+                        setInfoModal(null);
+                        action.current = null;
+                    }
+                }
+            })
+            .finally(() => {
+                toggleLoading(false);
+            })
     }
 
     useEffect(() => {
@@ -56,6 +98,7 @@ function App() {
             if (e.key === "Delete" && selectedFilesAndPanel.current && selectedFilesAndPanel.current.files.length > 0) {
                 setInfoModal(() => (<div>Are you sure you want to
                     delete <strong>{selectedFilesAndPanel.current.files.length} items?</strong></div>));
+                action.current = deleteFiles;
             }
         })
     }, []);
@@ -93,15 +136,32 @@ function App() {
                     if (selectedFilesAndPanel.current && selectedFilesAndPanel.current.files.length > 0) {
                         setInfoModal(() => (<div>Are you sure you want to
                             delete <strong>{selectedFilesAndPanel.current.files.length} items?</strong></div>));
+                        action.current = deleteFiles;
                     }
                 }} className="button delete-btn">
                     <img src={deleteIcon} alt="delete"/>
                 </button>
 
+                <button title={"Copy"} onClick={() => {
+                    if (selectedFilesAndPanel.current && selectedFilesAndPanel.current.files.length > 0) {
+                        setInfoModal(() => <ActionElement left={leftPanelCd} right={rightPanelCd}
+                                                          fromPanel={selectedFilesAndPanel.current.panel}
+                                                          message={<div>Are you sure you want
+                                                              to <strong>copy {selectedFilesAndPanel.current.files.length} items
+                                                                  ?</strong></div>}/>);
+                        action.current = copyFiles;
+                    }
+                }} className="button delete-btn">
+                    <img src={copyIcon} alt="delete"/>
+                </button>
+
 
             </Toolbar>
             {infoModal &&
-            <VerificationModal onAccept={deleteFiles} message={infoModal} onCancel={() => setInfoModal(null)}/>}
+            <VerificationModal onAccept={action.current} message={infoModal} onCancel={() => {
+                setInfoModal(null);
+                action.current = null;
+            }}/>}
             <div className="panels-container">
 
                 {

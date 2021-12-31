@@ -10,7 +10,7 @@ import stat
 import json
 import datetime
 import platform
-import errno
+import shutil
 
 BLACKLIST = [
     "Documents and Settings",
@@ -130,6 +130,38 @@ def rmFiles(request):
         except:
             pass
     return HttpResponse(json.dumps({"code": "OK"}))
+
+@csrf_exempt
+def copyFiles(request): 
+    reqBody = json.loads(request.body)
+    source = reqBody["source"]
+    overwrite = reqBody["overwrite"]
+    files = reqBody["files"]
+    overwritten = []
+    toOverwrite = []
+    try:
+        for f in files:
+            name = f["name"]
+            fpath = os.path.join(source, name)
+            if os.path.exists(fpath):
+                if not overwrite:
+                    toOverwrite.append(f["path"])
+                    overwritten.append(fpath)
+                else:
+                    if os.path.isdir(f["path"]):
+                        shutil.copytree(f["path"], source)
+                    else:
+                        shutil.copy2(f["path"], source)
+            else:
+                if os.path.isdir(f["path"]):
+                    shutil.copytree(f["path"], source)
+                else:
+                    shutil.copy2(f["path"], source)
+        return HttpResponse(json.dumps({"code" : "OK", "source" : source, "overwritten" : overwritten}))
+    except:
+        return HttpResponse(json.dumps({"code" : "ERROR"}))
+
+
 
 
 @ensure_csrf_cookie
