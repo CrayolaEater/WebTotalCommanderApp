@@ -1,0 +1,22 @@
+@import "../../variables";
+
+.editFileContainer {
+  font-size: 20px;
+  border-bottom: 1px solid white;
+}
+
+.fileContent {
+  background-color: $input-bg-color;
+  outline: none;
+  border: none;
+  margin: 20px;
+}
+
+.savedText {
+  color: lightgreen;
+  margin: 10px;
+}
+
+.errorMsj {
+  color: red;
+}

@@ -178,7 +178,7 @@ def cutFiles(request):
                 if not overwrite:
                     toOverwrite.append(f["path"])
                     overwritten.append(fpath)
-                else:
+                else:   
                     if os.path.isdir(fpath):
                         os.rmdir(fpath)
                     else:
@@ -190,6 +190,32 @@ def cutFiles(request):
     except:
         return HttpResponse(json.dumps({"code" : "ERROR"}))
 
+
+@csrf_exempt
+def getFile(request):
+    reqBody = json.loads(request.body)
+    file = reqBody["filePath"]
+    try:
+        f = open(file, "r")
+        content = f.read()
+        f.close()
+        return HttpResponse(json.dumps({"code" : "OK","data": content}))
+    except:
+        return HttpResponse(json.dumps({"code" : "ERROR"}))
+
+
+@csrf_exempt
+def setFile(request):
+    reqBody = json.loads(request.body)
+    file = reqBody["filePath"]
+    data = reqBody["data"]
+    try:
+        f = open(file, "w")
+        f.write(data)
+        f.close()
+        return HttpResponse(json.dumps({"code" : "OK"}))
+    except:
+        return HttpResponse(json.dumps({"code" : "ERROR"}))
 
 
 @ensure_csrf_cookie

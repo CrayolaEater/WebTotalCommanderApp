@@ -9,5 +9,7 @@ urlpatterns = [
     path("mkfile/", views.mkfile),
     path("rmFiles/", views.rmFiles),
     path("copyFiles/", views.copyFiles),
-    path("cutFiles/", views.cutFiles)
+    path("cutFiles/", views.cutFiles),
+    path("getFileContent/", views.getFile),
+    path("setFileContent/", views.setFile)
 ]

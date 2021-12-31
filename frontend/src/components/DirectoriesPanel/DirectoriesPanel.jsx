@@ -7,6 +7,7 @@ import DirectorySelector from "../DirectorySelector/DirectorySelector";
 import NewFolderModal from "../NewFolderModal/NewFolderModal";
 import NewFileModal from "../NewFileModal/NewFileModal";
 import ErrorModal from "../ErrorModal/ErrorModal";
+import EditModal from "../EditModal/EditModal";
 
 function DirectoriesPanel({
                               cd,
@@ -28,6 +29,7 @@ function DirectoriesPanel({
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [ctrPressed, toggleCtrl] = useState(false);
     const [error, setError] = useState("");
+    const [editFile, setEditFile] = useState("");
 
     useEffect(() => {
         document.addEventListener("keydown", (e) => {
@@ -87,6 +89,11 @@ function DirectoriesPanel({
                 setError("");
                 setCd(removeLastFromUrl(cd, defaultPaths.value));
             }}/>}
+            {
+                editFile && <EditModal onClose={() => {
+                    setEditFile("");
+                }} filePath={editFile}/>
+            }
             {newFolder && <NewFolderModal toggleCreateNewFolder={toggleCreateNewFolder} cd={cd} getFiles={getFiles}
                                           toggleLoading={toggleLoading}/>}
             {newFile && <NewFileModal toggleCreateNewFile={toggleCreateNewFile} cd={cd} getFiles={getFiles}
@@ -155,6 +162,8 @@ function DirectoriesPanel({
                                             setSelectedFiles([]);
                                             selectedFilesAndPanel.current = null;
                                             setCd(e.path);
+                                        } else if (e.ext === ".txt") {
+                                            setEditFile(e.path);
                                         }
                                     }
                                 }} key={`#fileRow-${i}`} fileInfo={e}/>
